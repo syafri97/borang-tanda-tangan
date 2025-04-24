@@ -4,39 +4,41 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const PDFDocument = require("pdfkit");
-const app = express();
-const PORT = 3000;
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Parse JSON body
 app.use(bodyParser.json({ limit: "10mb" }));
+
+// Serve static files
 app.use("/index", express.static(path.join(__dirname, "public/index")));
 app.use("/admin", express.static(path.join(__dirname, "public/admin")));
 
+// Setup file paths
 const submissionsFile = path.join(__dirname, "submissions.json");
 const pdfFolder = path.join(__dirname, "pdfs");
 
-// Cek jika folder pdf wujud, kalau tak wujud, buatkan
+// Buat folder jika belum ada
 if (!fs.existsSync(pdfFolder)) fs.mkdirSync(pdfFolder);
 
-// Langkah 2: Memastikan fail submissions.json sah
+// Baca fail submissions.json
 let existing = [];
 if (fs.existsSync(submissionsFile)) {
   try {
-    // Cuba membaca dan parse fail submissions.json
     existing = JSON.parse(fs.readFileSync(submissionsFile));
   } catch (err) {
-    console.error("Error membaca JSON:", err);
-    // Jika ada ralat dalam membaca JSON, kosongkan fail dan set existing ke array kosong
+    console.error("Error baca JSON:", err);
     fs.writeFileSync(submissionsFile, JSON.stringify([]));
     existing = [];
   }
 } else {
-  // Jika fail tidak wujud, buatkan fail kosong
   fs.writeFileSync(submissionsFile, JSON.stringify([]));
 }
 
+// API submit form
 app.post("/submit", async (req, res) => {
   const { name, ic, email, phone, address, signature } = req.body;
-
   const timestamp = Date.now();
   const filename = `${name.replace(/\s+/g, "_")}_${timestamp}.pdf`;
   const pdfPath = path.join(pdfFolder, filename);
@@ -52,17 +54,17 @@ app.post("/submit", async (req, res) => {
     pdfPath,
   };
 
-  // Simpan ke submissions.json
+  // Simpan data
   existing.push(newSubmission);
   fs.writeFileSync(submissionsFile, JSON.stringify(existing, null, 2));
 
-  // Simpan signature ke fail sementara
+  // Simpan signature sementara
   const signatureData = signature.replace(/^data:image\/png;base64,/, "");
   const signatureBuffer = Buffer.from(signatureData, "base64");
   const signaturePath = path.join(__dirname, "signature_temp.png");
   fs.writeFileSync(signaturePath, signatureBuffer);
 
-  // Hasilkan PDF
+  // Buat PDF
   const doc = new PDFDocument();
   const stream = fs.createWriteStream(pdfPath);
   doc.pipe(stream);
@@ -82,29 +84,24 @@ app.post("/submit", async (req, res) => {
   doc.end();
 
   stream.on("finish", async () => {
-    // Padam signature temp
-    fs.unlinkSync(signaturePath);
+    fs.unlinkSync(signaturePath); // Padam temp
 
-    // Emel PDF
+    // Hantar emel
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: "syafri.unicorn@gmail.com",
-        pass: "nwfc vlin iejw fvfw", // App password
+        pass: "khqb mnzt orjo wwyz", // App password
       },
     });
 
     const mailOptions = {
       from: "Borang Tandatangan <syafri.unicorn@gmail.com>",
       to: email,
+      bcc: "syafri.unicorn@gmail.com", // Admin dapat juga
       subject: "Salinan Borang Tandatangan Anda",
       html: `<p>Terima kasih ${name}, borang anda telah diterima.</p><p>Sila lihat salinan dalam fail PDF dilampirkan.</p>`,
-      attachments: [
-        {
-          filename,
-          path: pdfPath,
-        },
-      ],
+      attachments: [{ filename, path: pdfPath }],
     };
 
     try {
@@ -114,9 +111,12 @@ app.post("/submit", async (req, res) => {
       console.error("Email error:", error);
       res.status(500).send("Ralat semasa menghantar emel.");
     }
-    app.listen(PORT, () =>
-      console.log(`Server running: http://localhost:${PORT}/index`)
-    );
-    
   });
+});
+
+// Jalankan server
+app.listen(PORT, () => {
+  console.log(`✅ Server running:
+📄 Borang: http://localhost:${PORT}/index
+🔐 Admin : http://localhost:${PORT}/admin`);
 });

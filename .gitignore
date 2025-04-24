@@ -1,0 +1,19 @@
+# Folder dependencies
+node_modules/
+
+# Fail hasil PDF
+pdfs/
+signature_temp.png
+
+# Fail sementara atau log
+*.log
+
+# Fail sensitive (jika guna dotenv)
+.env
+
+# VSCode settings (optional)
+.vscode/
+
+# Fail system (optional)
+.DS_Store
+Thumbs.db
