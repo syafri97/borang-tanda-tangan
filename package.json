@@ -1,0 +1,17 @@
+{
+  "name": "tandatangan",
+  "version": "1.0.0",
+  "description": "Borang Tanda Tangan",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "nodemailer": "^6.10.1",
+    "pdfkit": "^0.12.3"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Your Name",
+  "license": "ISC"
+}

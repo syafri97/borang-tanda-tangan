@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Senarai Borang</title>
+  <link rel="stylesheet" href="admin-style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Senarai Borang Dihantar</h2>
+    <div id="entries"></div>
+  </div>
+
+  <script>
+    async function loadSubmissions() {
+      const res = await fetch("/submissions");
+      const data = await res.json();
+      const entries = document.getElementById("entries");
+
+      if (data.length === 0) {
+        entries.innerHTML = "<p>Tiada borang dihantar lagi.</p>";
+        return;
+      }
+
+      data.reverse().forEach((entry, i) => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `
+          <h4>${i + 1}. ${entry.name} (${entry.ic})</h4>
+          <p><b>Email:</b> ${entry.email}</p>
+          <p><b>Telefon:</b> ${entry.phone}</p>
+          <p><b>Alamat:</b> ${entry.address}</p>
+          <p><b>Masa:</b> ${new Date(entry.timestamp).toLocaleString()}</p>
+          <img src="${entry.signature}" alt="Signature" width="300"/>
+        `;
+        entries.appendChild(div);
+      });
+    }
+
+    loadSubmissions();
+  </script>
+</body>
+</html>
