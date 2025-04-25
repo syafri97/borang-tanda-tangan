@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 const PDFDocument = require("pdfkit");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000; // Gunakan PORT Render
 
 // Parse JSON body
 app.use(bodyParser.json({ limit: "10mb" }));
@@ -112,6 +112,23 @@ app.post("/submit", async (req, res) => {
       res.status(500).send("Ralat semasa menghantar emel.");
     }
   });
+});
+
+// API untuk memuat turun PDF
+app.get("/download/:pdfPath", (req, res) => {
+  const { pdfPath } = req.params;
+  const filePath = path.join(pdfFolder, pdfPath);
+
+  if (fs.existsSync(filePath)) {
+    res.download(filePath); // Muat turun PDF
+  } else {
+    res.status(404).send("PDF tidak dijumpai.");
+  }
+});
+
+// Redirect root (/) ke /index
+app.get("/", (req, res) => {
+  res.redirect("/index");
 });
 
 // Jalankan server
