@@ -138,5 +138,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running:
 📄 Borang: http://localhost:${PORT}/index
-🔐 Admin : http://localhost:${PORT}/admin`);
+
 });
