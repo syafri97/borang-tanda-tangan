@@ -7,9 +7,6 @@ const PDFDocument = require("pdfkit");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server berjalan di http://localhost:${PORT}`);
-});
 
 // Parse JSON body
 app.use(bodyParser.json({ limit: "10mb" }));
