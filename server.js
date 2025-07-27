@@ -6,7 +6,10 @@ const nodemailer = require("nodemailer");
 const PDFDocument = require("pdfkit");
 
 const app = express();
-const PORT = process.env.PORT || 10000; // Gunakan PORT Render
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server berjalan di http://localhost:${PORT}`);
+});
 
 // Parse JSON body
 app.use(bodyParser.json({ limit: "10mb" }));
@@ -38,7 +41,7 @@ if (fs.existsSync(submissionsFile)) {
 
 // API submit form
 app.post("/submit", async (req, res) => {
-  const { name, ic, email, phone, address, signature } = req.body;
+  const { name, ic, email, phone, address,position, signature } = req.body;
   const timestamp = Date.now();
   const filename = `${name.replace(/\s+/g, "_")}_${timestamp}.pdf`;
   const pdfPath = path.join(pdfFolder, filename);
@@ -49,6 +52,7 @@ app.post("/submit", async (req, res) => {
     email,
     phone,
     address,
+    position,
     signature,
     timestamp,
     pdfPath,
@@ -76,6 +80,7 @@ app.post("/submit", async (req, res) => {
   doc.text(`No. IC: ${ic}`);
   doc.text(`Emel: ${email}`);
   doc.text(`Telefon: ${phone}`);
+  doc.text(`jawatan: ${position}`);
   doc.text(`Alamat: ${address}`);
   doc.moveDown();
   doc.text("Tandatangan:");
@@ -127,9 +132,10 @@ app.get("/download/:pdfPath", (req, res) => {
 });
 
 // Redirect root (/) ke /index
-app.get("/", (req, res) => {
-  res.redirect("/index");
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index/index.html'));
 });
+
 
 // Jalankan server
 app.listen(PORT, () => {
