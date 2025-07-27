@@ -13,8 +13,8 @@ const PORT = process.env.PORT || 10000;
 app.use(bodyParser.json({ limit: "10mb" }));
 
 // Serve static files
-app.use("/index", express.static(path.join(__dirname, "public/index")));
-app.use("/admin", express.static(path.join(__dirname, "public/admin")));
+app.use(express.static(path.join(__dirname, "public")));
+
 
 // Setup file paths
 const submissionsFile = path.join(__dirname, "submissions.json");
@@ -131,12 +131,12 @@ app.get("/download/:pdfPath", (req, res) => {
 
 // Redirect root (/) ke /index
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 
 // Jalankan server
 app.listen(PORT, () => {
   console.log(`✅ Server running:
-📄 Borang: http://localhost:${PORT}/index`);
+📄 Borang: http://localhost:${PORT}/index.html`);
 });
